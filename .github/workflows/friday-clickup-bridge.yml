@@ -1,0 +1,57 @@
+name: friday-clickup-bridge
+
+on:
+  schedule:
+    # Friday 16:00 CET (15:00 UTC), shortly after the existing friday-sync.
+    - cron: "30 15 * * 5"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: friday-clickup-bridge
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: anthropics/claude-code-base-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Run the bridge-agent in AUDIT mode (see .claude/agents/bridge-agent.md).
+
+            Read config/clients.json. For every client listed there, audit the current ISO week's sprint list and the next week's sprint list in that client's ClickUp folder.
+
+            For each task with a missing or mismatched Key Projects [Client] custom field, post a single batched Slack message to that client's internal channel (slack_internal_channel_id from the registry). Format follows the bridge-agent spec exactly.
+
+            After posting, write the state file under bridge-state/{client-slug}-{ISO-week}.json. Then commit and push these state files (use git add bridge-state/, git commit, git push) so the hourly reply processor can read them.
+
+            This is an unattended run. Skip the action_preview confirmation for the writes you make to Slack and to the bridge-state/ files. Log every audit decision in your output: which task, which client, what was flagged, and whether a Slack message was sent.
+          allowed_tools: "mcp__clickup__*,mcp__notion__*,mcp__slack__*,Read,Write,Bash(git:*)"
+          mcp_config: |
+            {
+              "mcpServers": {
+                "notion": { "type": "http", "url": "https://mcp.notion.com/mcp", "headers": { "Authorization": "Bearer ${{ secrets.NOTION_API_KEY }}" } },
+                "clickup": { "type": "http", "url": "https://mcp.clickup.com/mcp", "headers": { "Authorization": "Bearer ${{ secrets.CLICKUP_API_KEY }}" } },
+                "slack": { "command": "npx", "args": ["-y", "@modelcontextprotocol/server-slack"], "env": { "SLACK_BOT_TOKEN": "${{ secrets.SLACK_BOT_TOKEN }}", "SLACK_TEAM_ID": "${{ secrets.SLACK_TEAM_ID }}" } }
+              }
+            }
+
+      - name: Commit bridge-state changes
+        if: always()
+        run: |
+          if [ -n "$(git status --porcelain bridge-state/)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add bridge-state/
+            git commit -m "chore(bridge): record audit state for $(date -u +%G-W%V)"
+            git push
+          else
+            echo "No bridge-state changes to commit."
+          fi

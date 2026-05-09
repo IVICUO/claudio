@@ -1,0 +1,101 @@
+[
+  {
+    "name": "Cognism",
+    "slug": "cognism",
+    "notion_workspace_database_id": "95450705-0b5c-4612-bc86-e00c8eb55981",
+    "notion_workspace_title": "WORKSPACE COGNISM",
+    "clickup_folder_id": "80690088",
+    "clickup_folder_name": "Cog-Kaspr",
+    "clickup_client_field_value": "COGNISM",
+    "slack_internal_channel_id": "C02R19DLFFE",
+    "slack_internal_channel_name": "client-cognism"
+  },
+  {
+    "name": "CloudBeds",
+    "slug": "cloudbeds",
+    "notion_workspace_database_id": "78255586-6aff-4a9b-8789-07adae76e6c4",
+    "notion_workspace_title": "WORKSPACE CLOUDBEDS",
+    "clickup_folder_id": "90080128243",
+    "clickup_folder_name": "CloudBeds",
+    "clickup_client_field_value": "CLOUDBEDS",
+    "slack_internal_channel_id": "C04J2PQ2G7L",
+    "slack_internal_channel_name": "client-cloudbeds"
+  },
+  {
+    "name": "TheFork",
+    "slug": "thefork",
+    "notion_workspace_database_id": "1a5e5f57-cb34-4c64-aac1-8f09c164ac37",
+    "notion_workspace_title": "WORKSPACE THEFORK",
+    "clickup_folder_id": "74467947",
+    "clickup_folder_name": "TheFork",
+    "clickup_client_field_value": "THEFORK",
+    "slack_internal_channel_id": "C01HYP30THR",
+    "slack_internal_channel_name": "client-thefork"
+  },
+  {
+    "name": "Carto",
+    "slug": "carto",
+    "notion_workspace_database_id": "cfc71917-4a03-4100-98f7-f9a5fdb9033c",
+    "notion_workspace_title": "WORKSPACE CARTO",
+    "clickup_folder_id": "74419239",
+    "clickup_folder_name": "Carto",
+    "clickup_client_field_value": "CARTO",
+    "slack_internal_channel_id": "CHYQVE80H",
+    "slack_internal_channel_name": "client-carto"
+  },
+  {
+    "name": "Tinybird",
+    "slug": "tinybird",
+    "notion_workspace_database_id": "10b021fb-3bdc-8057-bd17-c138d057c4bf",
+    "notion_workspace_title": "WORKSPACE TINYBIRD",
+    "clickup_folder_id": "90154294000",
+    "clickup_folder_name": "TINYBIRD",
+    "clickup_client_field_value": "TINYBIRD",
+    "slack_internal_channel_id": "C07NK4E6GQN",
+    "slack_internal_channel_name": "client-tinybird"
+  },
+  {
+    "name": "Encord",
+    "slug": "encord",
+    "notion_workspace_database_id": "218021fb-3bdc-8071-ab2a-f34455891adc",
+    "notion_workspace_title": "WORKSPACE  ENCORD",
+    "clickup_folder_id": "90157752329",
+    "clickup_folder_name": "Encord",
+    "clickup_client_field_value": "ENCORD",
+    "slack_internal_channel_id": "C091XDY9GLF",
+    "slack_internal_channel_name": "client-encord"
+  },
+  {
+    "name": "Launchmetrics",
+    "slug": "launchmetrics",
+    "notion_workspace_database_id": "2a8021fb-3bdc-80dd-9968-e1af996580d2",
+    "notion_workspace_title": "WORKSPACE LAUNCHMETRICS",
+    "clickup_folder_id": "901511588468",
+    "clickup_folder_name": "LAUNCHMETRICS",
+    "clickup_client_field_value": "LAUNCHMETRICS",
+    "slack_internal_channel_id": "C09TABE6MQ8",
+    "slack_internal_channel_name": "client-launchmetrics"
+  },
+  {
+    "name": "Instantly",
+    "slug": "instantly",
+    "notion_workspace_database_id": "2bc021fb-3bdc-81da-91ac-cb05d9fcd718",
+    "notion_workspace_title": "WORKSPACE INSTANTLY",
+    "clickup_folder_id": "901512088732",
+    "clickup_folder_name": "INSTANTLY",
+    "clickup_client_field_value": "INSTANTLY",
+    "slack_internal_channel_id": "C0A0D15SWK0",
+    "slack_internal_channel_name": "client-instantly"
+  },
+  {
+    "name": "TrustYou",
+    "slug": "trustyou",
+    "notion_workspace_database_id": "cb3021fb-3bdc-82d3-9175-019000db5a54",
+    "notion_workspace_title": "WORKSPACE TRUSTYOU",
+    "clickup_folder_id": "901515250586",
+    "clickup_folder_name": "TRUSTYOU",
+    "clickup_client_field_value": "TRUSTYOU",
+    "slack_internal_channel_id": "C0AMFNTH085",
+    "slack_internal_channel_name": "client-trustyou"
+  }
+]

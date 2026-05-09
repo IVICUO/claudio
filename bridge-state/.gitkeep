@@ -1,0 +1,28 @@
+# bridge-state/
+
+This directory holds the state files written by the friday-clickup-bridge workflow.
+Each file represents one Slack audit message awaiting human replies.
+
+Schema, one file per client per ISO week:
+  bridge-state/{client-slug}-{YYYY-Www}.json
+  {
+    "client": "Cognism",
+    "channel_id": "C02R19DLFFE",
+    "message_ts": "1736784000.123456",
+    "iso_week": "2026-W19",
+    "posted_at": "2026-05-09T15:30:00Z",
+    "flags": [
+      {
+        "position": 1,
+        "task_id": "abc123",
+        "task_url": "https://app.clickup.com/t/abc123",
+        "current_value": null,
+        "suggested_value": "Product Scoring",
+        "resolved": false,
+        "resolved_at": null,
+        "outcome": null
+      }
+    ]
+  }
+
+Resolved files migrate to bridge-state/archive/ once every flag has an outcome.

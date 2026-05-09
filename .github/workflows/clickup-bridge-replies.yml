@@ -1,0 +1,73 @@
+name: clickup-bridge-replies
+
+on:
+  schedule:
+    # Every hour during workday hours, Mon-Fri (07:00 to 19:00 UTC).
+    - cron: "0 7-19 * * 1-5"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: clickup-bridge-replies
+  cancel-in-progress: false
+
+jobs:
+  process:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Skip if no pending state
+        id: check
+        run: |
+          if [ ! -d bridge-state ] || [ -z "$(ls -A bridge-state/ 2>/dev/null)" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "No pending bridge audits, exiting."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run reply processor
+        if: steps.check.outputs.skip != 'true'
+        uses: anthropics/claude-code-base-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Run the bridge-agent in REPLY mode (see .claude/agents/bridge-agent.md).
+
+            Read every JSON file in bridge-state/. For each file, fetch the corresponding Slack thread and process any replies posted since the audit message that you have not already resolved.
+
+            For each reply, parse against the spec:
+              ✅ / yes → apply suggested Key Projects via clickup update_task
+              ❌ / no / skip → mark resolved with no change
+              free text → check it matches an existing dropdown option, set if yes, ask for clarification in the thread if no
+
+            For each successful write, react to the reply with ✅ in Slack, post a one-line confirmation in the thread, and update the state file (mark the flag resolved). When every flag in a state file is resolved, move the file to bridge-state/archive/.
+
+            Then commit and push state changes: git add bridge-state/, git commit, git push. Skip the action_preview confirmation since this is unattended.
+
+            Log every action in your output. If a state file is malformed or its thread is unreadable, log and continue.
+          allowed_tools: "mcp__clickup__*,mcp__slack__*,Read,Write,Bash(git:*),Bash(mkdir:*),Bash(mv:*)"
+          mcp_config: |
+            {
+              "mcpServers": {
+                "clickup": { "type": "http", "url": "https://mcp.clickup.com/mcp", "headers": { "Authorization": "Bearer ${{ secrets.CLICKUP_API_KEY }}" } },
+                "slack": { "command": "npx", "args": ["-y", "@modelcontextprotocol/server-slack"], "env": { "SLACK_BOT_TOKEN": "${{ secrets.SLACK_BOT_TOKEN }}", "SLACK_TEAM_ID": "${{ secrets.SLACK_TEAM_ID }}" } }
+              }
+            }
+
+      - name: Commit bridge-state changes
+        if: always() && steps.check.outputs.skip != 'true'
+        run: |
+          if [ -n "$(git status --porcelain bridge-state/)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add bridge-state/
+            git commit -m "chore(bridge): process replies $(date -u +%FT%TZ)"
+            git push
+          else
+            echo "No bridge-state changes to commit."
+          fi
