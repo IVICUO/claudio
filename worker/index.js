@@ -115,6 +115,35 @@ async function handleValidateKey(request, env, origin) {
 
 // ----- Notion -----
 
+function readSelect(props, names) {
+  for (const n of names) {
+    const v = props[n]?.select?.name;
+    if (v) return v;
+  }
+  return null;
+}
+function readRichText(props, names) {
+  for (const n of names) {
+    const v = props[n]?.rich_text?.map((t) => t.plain_text).join("");
+    if (v) return v;
+  }
+  return null;
+}
+function readDate(props, names) {
+  for (const n of names) {
+    const v = props[n]?.date?.start;
+    if (v) return v;
+  }
+  return null;
+}
+function deriveQuarter(isoDate) {
+  if (!isoDate) return null;
+  const d = new Date(isoDate);
+  if (Number.isNaN(d.getTime())) return null;
+  const q = Math.floor(d.getMonth() / 3) + 1;
+  return `${d.getFullYear()} Q${q}`;
+}
+
 async function notionFetch(env, path, init = {}) {
   const r = await fetch(`https://api.notion.com/v1${path}`, {
     ...init,
@@ -146,9 +175,14 @@ async function handleNotionFetchProjects(_request, env, origin) {
       const props = page.properties || {};
       const titleProp = Object.values(props).find((p) => p.type === "title");
       const name = titleProp?.title?.map((t) => t.plain_text).join("") || "Untitled";
-      const branch = props["Branch"]?.select?.name || props["branch"]?.select?.name || null;
-      const status = props["Status"]?.select?.name || props["status"]?.select?.name || null;
-      const clickup = props["ClickUp List"]?.rich_text?.map((t) => t.plain_text).join("") || null;
+      const branch = readSelect(props, ["Branch", "branch"]);
+      const status = readSelect(props, ["Status", "status"]);
+      const clickup = readRichText(props, ["ClickUp List", "clickup_list", "ClickUp"]);
+      const client = readSelect(props, ["Client", "client", "Account"])
+        || readRichText(props, ["Client", "client", "Account"]);
+      const quarter = readSelect(props, ["Quarter", "quarter"])
+        || readRichText(props, ["Quarter", "quarter"])
+        || deriveQuarter(readDate(props, ["Start Date", "Start", "Kickoff"]));
       return {
         id: page.id,
         name,
@@ -157,6 +191,8 @@ async function handleNotionFetchProjects(_request, env, origin) {
         clickup_list_id: clickup,
         branch,
         status,
+        client: client || null,
+        quarter: quarter || null,
         last_activity: page.last_edited_time,
       };
     })
