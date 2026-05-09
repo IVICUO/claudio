@@ -1,0 +1,52 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__notion__*",
+      "mcp__clickup__*",
+      "mcp__slack__*",
+      "mcp__github__*",
+      "Read",
+      "Write",
+      "Edit",
+      "Glob",
+      "Grep",
+      "Bash(git:*)",
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(node:*)"
+    ],
+    "deny": [
+      "Read(.env)",
+      "Read(.env.*)",
+      "Write(.env)",
+      "Write(.env.*)",
+      "Bash(rm -rf:*)",
+      "Bash(rm -r -f:*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "mcp__notion__update.*|mcp__notion__create.*|mcp__notion__append.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/notify-slack-activity.js"
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/validate-config.js"
+          }
+        ]
+      }
+    ]
+  },
+  "env": {
+    "CLAUDE_CODE_COMMIT_COAUTHOR": "Co-authored-by: Claudio <claudio@ivicuo.com>"
+  }
+}
