@@ -9,8 +9,8 @@ export default {
         "navy-soft": "#2a4063",
         teal: "#63FCE2",
         "teal-dim": "#3fc5b0",
-        magenta: "#FF2062",
-        "magenta-dim": "#cc1a4f",
+        magenta: "#EB586D",
+        "magenta-dim": "#BC4656",
         cloud: "#F2F7FD",
       },
       fontFamily: {

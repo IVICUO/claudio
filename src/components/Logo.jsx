@@ -1,63 +1,50 @@
 import React from "react";
 
-// IVICUO wordmark, recreated as React/SVG so the brand stays sharp at any size.
-// The "u" carries two short magenta poles on top, representing the magnet.
+// Real IVICUO wordmark, inlined from the company SVG (white letterforms, red magnet bars on the "u").
+// The "claudio" tag below is added in the React layer since it is part of this product's identification,
+// not part of the wordmark itself.
+const SIZES = {
+  sm: { height: 22, tagSize: 8 },
+  md: { height: 32, tagSize: 9 },
+  lg: { height: 56, tagSize: 12 },
+};
+
+const ASPECT = 265 / 112;
+const WHITE = "#FFFFFF";
+const RED = "#EB586D";
+
 export function Logo({ size = "md", showProductTag = true }) {
-  const dims = {
-    sm: { letterSize: 22, magnetWidth: 4, magnetHeight: 1.5, gap: 1.5, tagSize: 8 },
-    md: { letterSize: 32, magnetWidth: 5, magnetHeight: 2, gap: 2, tagSize: 9 },
-    lg: { letterSize: 56, magnetWidth: 9, magnetHeight: 3.5, gap: 3, tagSize: 12 },
-  }[size];
+  const { height, tagSize } = SIZES[size] || SIZES.md;
+  const width = Math.round(height * ASPECT);
 
   return (
     <div className="inline-flex flex-col items-start select-none">
-      <div className="relative inline-flex items-baseline" style={{ lineHeight: 1 }}>
-        <span
-          className="font-extrabold text-cloud tracking-wordmark"
-          style={{ fontSize: dims.letterSize, fontWeight: 800 }}
-        >
-          ivic
-        </span>
-        <span
-          className="relative font-extrabold text-cloud tracking-wordmark"
-          style={{ fontSize: dims.letterSize, fontWeight: 800 }}
-        >
-          {/* Two magnet poles above the u, in magenta. */}
-          <span
-            aria-hidden
-            className="absolute bg-magenta"
-            style={{
-              top: -dims.magnetHeight - dims.gap,
-              left: dims.letterSize * 0.18,
-              width: dims.magnetWidth,
-              height: dims.magnetHeight,
-              borderRadius: 0.5,
-            }}
-          />
-          <span
-            aria-hidden
-            className="absolute bg-magenta"
-            style={{
-              top: -dims.magnetHeight - dims.gap,
-              left: dims.letterSize * 0.42,
-              width: dims.magnetWidth,
-              height: dims.magnetHeight,
-              borderRadius: 0.5,
-            }}
-          />
-          u
-        </span>
-        <span
-          className="font-extrabold text-cloud tracking-wordmark"
-          style={{ fontSize: dims.letterSize, fontWeight: 800 }}
-        >
-          o
-        </span>
-      </div>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 265 112"
+        width={width}
+        height={height}
+        role="img"
+        aria-label="IVICUO"
+      >
+        {/* Wordmark, white */}
+        <path fill={WHITE} d="M59.7,77.5c1,0,1.3-0.6,1.6-1.4c0.1-0.2,0.1-0.4,0.2-0.5l18.6-38.9c0.2-0.4,0.3-0.8,0.2-1 c-0.1-0.2-0.4-0.3-0.9-0.3h-8.3c-1.2,0-1.5,0.1-1.8,0.7l-9.1,20.1c-0.2,0.4-0.5,0.6-0.9,0.6l0,0c-0.4,0-0.8-0.2-1-0.6l-8.6-20.1 c-0.2-0.4-0.5-0.7-1.1-0.7h-9.3c-0.2,0-0.7,0-0.8,0.3c-0.1,0.2-0.1,0.6,0.1,1.1L56.8,75c0,0.1,0.4,0.9,0.4,0.9 c0.3,0.5,0.8,1.6,1.9,1.6L59.7,77.5z" />
+        <path fill={WHITE} d="M132.8,35.3c-11.5,0-21.2,9.6-21.2,20.9c0,11.5,9.5,20.9,21.1,20.9c6.7,0,12.2-2.9,15.6-8.3 c0.2-0.3,0.6-0.9-0.5-1.8l-4.4-3.8c-0.5-0.4-1.1-0.1-1.5,0.2l-0.4,0.4c-1.8,1.7-4,3.8-8.5,3.8c-6.1,0-10.9-5-10.9-11.4 c0-6.3,4.9-11.4,11-11.4c2.8,0,5.7,1.3,7.7,3.5c0.9,0.8,1.2,0.5,1.4,0.3l4.8-4.6c0.3-0.2,0.5-0.5,0.6-0.8c0-0.3,0-0.6-0.2-0.8 C143.6,37.6,138.8,35.3,132.8,35.3z" />
+        <path fill={WHITE} d="M233.1,35c-11.1,0-20.5,9.6-20.5,21c0,11.7,9.2,21.2,20.5,21.2s20.5-9.5,20.5-21.2 C253.6,44.6,244.2,35,233.1,35z M233.1,67.5c-6.1,0-10.9-5.1-10.9-11.6c0-6.4,4.8-11.4,10.9-11.4c6,0,10.9,5.1,10.9,11.4 C244,62.3,239.1,67.5,233.1,67.5z" />
+        <path fill={WHITE} d="M100.1,40.3h-8.4c-0.5,0-0.9-0.4-0.9-0.9v-4c0-0.5,0.4-0.9,0.9-0.9h8.4 c0.5,0,0.9,0.4,0.9,0.9v4C101,39.9,100.6,40.3,100.1,40.3z" />
+        <path fill={WHITE} d="M27.5,40.3h-8.1c-0.6,0-1-0.4-1-1v-3.8c0-0.6,0.4-1,1-1h8.1c0.6,0,1,0.4,1,1v3.8 C28.5,39.8,28.1,40.3,27.5,40.3z" />
+        <path fill={WHITE} d="M91.9,44.9c-0.6,0-1.2,0.5-1.2,1.2v29.8c0,0.8,0.5,1.4,1.1,1.4h8.1c0.5,0,1.1-0.6,1.1-1.2V46 c0-0.6-0.5-1.2-1.2-1.2H91.9z" />
+        <path fill={WHITE} d="M19.5,44.9c-0.7,0-1.2,0.5-1.2,1.2v30.1c0,0.6,0.5,1.2,1.1,1.2h8.1c0.5,0,1.1-0.6,1.1-1.9V46.2 c0-0.1,0-0.1,0-0.2c0-0.8-0.6-1.1-1.2-1.1H19.5z" />
+        <path fill={WHITE} d="M189.4,44.4h-1.3c-0.5,0-0.9,0.4-0.9,0.9l0,9.2c0,2.6-1.5,4.9-3.8,5.6 c-3.3,1-6.4-1.9-6.4-5.4l0-9.4c0-0.5-0.4-1-0.9-1h-3.7c-0.5,0-0.9,0.4-0.9,1l0,9.4c0,6.2,4.6,11.5,10.5,11.5 c6.1,0,10.5-5.3,10.5-11.5v-9.4c0-0.5-0.4-0.9-0.9-0.9H189.4z" />
+        <path fill={WHITE} d="M202.5,44.4H199c-0.5,0-1,0.5-1,1V54c0,9-6.2,16.7-14.5,17.5c-9.4,0.9-17.3-7.2-17.3-17.2v-9 c0-0.5-0.3-0.8-0.8-0.8h-3.9c-0.4,0-0.8,0.4-0.8,0.8v10.1h0c0.5,12.2,9.9,21.9,21.3,21.9c11.4,0,20.8-9.7,21.3-21.9h0v-1.1 c0-0.4,0-0.8,0-1.2v-7.6C203.4,44.9,203,44.4,202.5,44.4z" />
+        {/* Magnet bars, IVICUO red */}
+        <path fill={RED} d="M175.9,40.3h-14c-0.6,0-1.1-0.5-1.1-1.1v-3.6c0-0.6,0.5-1.1,1.1-1.1h14 c0.6,0,1.1,0.5,1.1,1.1v3.6C177.1,39.8,176.6,40.3,175.9,40.3z" />
+        <path fill={RED} d="M202.2,40.3h-13.7c-0.7,0-1.2-0.6-1.2-1.2v-3.4c0-0.7,0.6-1.2,1.2-1.2h13.7 c0.7,0,1.2,0.6,1.2,1.2v3.4C203.4,39.8,202.9,40.3,202.2,40.3z" />
+      </svg>
       {showProductTag && (
         <span
           className="text-teal font-bold uppercase tracking-tag mt-1"
-          style={{ fontSize: dims.tagSize }}
+          style={{ fontSize: tagSize }}
         >
           claudio
         </span>
