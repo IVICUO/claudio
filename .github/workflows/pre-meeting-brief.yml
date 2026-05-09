@@ -1,0 +1,37 @@
+name: pre-meeting-brief
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  brief:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: anthropics/claude-code-base-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Query Notion for client meetings scheduled in the next 48 hours. The meeting calendar lives in the "Calendar" database; each entry has a project relation.
+
+            If there are no upcoming meetings: log "No meetings in the next 48 hours" and exit cleanly.
+
+            If there are meetings: for each one, run the report-agent on the related project and append the briefing to the meeting page in Notion under a "Pre meeting briefing" toggle.
+
+            This is an unattended run. Execute writes directly. Log every briefing produced with project name and meeting date.
+          allowed_tools: "mcp__notion__*,mcp__clickup__*,mcp__slack__*,Read,Write"
+          mcp_config: |
+            {
+              "mcpServers": {
+                "notion": { "type": "http", "url": "https://mcp.notion.com/mcp", "headers": { "Authorization": "Bearer ${{ secrets.NOTION_API_KEY }}" } },
+                "clickup": { "type": "http", "url": "https://mcp.clickup.com/mcp", "headers": { "Authorization": "Bearer ${{ secrets.CLICKUP_API_KEY }}" } },
+                "slack": { "command": "npx", "args": ["-y", "@modelcontextprotocol/server-slack"], "env": { "SLACK_BOT_TOKEN": "${{ secrets.SLACK_BOT_TOKEN }}", "SLACK_TEAM_ID": "${{ secrets.SLACK_TEAM_ID }}" } }
+              }
+            }

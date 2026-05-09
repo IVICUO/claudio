@@ -1,0 +1,38 @@
+name: daily-insight
+
+on:
+  schedule:
+    - cron: "0 7 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  insight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: anthropics/claude-code-base-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Run the slack-agent over the past 24 hours of activity in every active client channel and #ivicuo-internal.
+
+            For each channel:
+            1. Identify decisions reached, action items, unanswered questions, and blockers.
+            2. Where action items map cleanly to existing projects, create the corresponding ClickUp task in the project list.
+            3. Append a short daily summary to the project's Notion page under the "Recent activity" section.
+
+            This is an unattended run. Execute writes directly. Log everything created or updated.
+          allowed_tools: "mcp__slack__*,mcp__clickup__*,mcp__notion__*,Read,Write"
+          mcp_config: |
+            {
+              "mcpServers": {
+                "notion": { "type": "http", "url": "https://mcp.notion.com/mcp", "headers": { "Authorization": "Bearer ${{ secrets.NOTION_API_KEY }}" } },
+                "clickup": { "type": "http", "url": "https://mcp.clickup.com/mcp", "headers": { "Authorization": "Bearer ${{ secrets.CLICKUP_API_KEY }}" } },
+                "slack": { "command": "npx", "args": ["-y", "@modelcontextprotocol/server-slack"], "env": { "SLACK_BOT_TOKEN": "${{ secrets.SLACK_BOT_TOKEN }}", "SLACK_TEAM_ID": "${{ secrets.SLACK_TEAM_ID }}" } }
+              }
+            }

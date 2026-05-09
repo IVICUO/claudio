@@ -1,0 +1,37 @@
+name: monday-digest
+
+on:
+  schedule:
+    - cron: "0 8 * * 1"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: anthropics/claude-code-base-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Run the insight-agent across all active projects to produce the weekly digest.
+
+            Apply the detect-project-signal skill: risk signals first, then opportunity, then expansion.
+
+            Format with the generate-weekly-digest skill structure: what moved last week, what is in flight this week, worth a conversation.
+
+            This is an unattended run. Post the Slack message to #ivicuo-internal and append the digest as a new section to the IVICUO Internal Notion page. Log both writes.
+          allowed_tools: "mcp__notion__*,mcp__clickup__*,mcp__slack__*,Read,Write"
+          mcp_config: |
+            {
+              "mcpServers": {
+                "notion": { "type": "http", "url": "https://mcp.notion.com/mcp", "headers": { "Authorization": "Bearer ${{ secrets.NOTION_API_KEY }}" } },
+                "clickup": { "type": "http", "url": "https://mcp.clickup.com/mcp", "headers": { "Authorization": "Bearer ${{ secrets.CLICKUP_API_KEY }}" } },
+                "slack": { "command": "npx", "args": ["-y", "@modelcontextprotocol/server-slack"], "env": { "SLACK_BOT_TOKEN": "${{ secrets.SLACK_BOT_TOKEN }}", "SLACK_TEAM_ID": "${{ secrets.SLACK_TEAM_ID }}" } }
+              }
+            }

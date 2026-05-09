@@ -1,0 +1,38 @@
+name: friday-sync
+
+on:
+  schedule:
+    - cron: "0 15 * * 5"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: anthropics/claude-code-base-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Run the project-agent for every active client project listed in Notion.
+
+            For each project, in parallel where possible:
+            1. Read the project's Notion page (status, open items, recent updates).
+            2. Read the project's ClickUp list (open tasks, recently closed, overdue).
+            3. Compute the diff and update the Notion page so it reflects ClickUp ground truth.
+            4. Flag stalled items (no movement in 14 days) in plain prose at the bottom.
+
+            This is an unattended run. Skip the action_preview confirmation step and execute writes directly. Log every write you perform with project name, target page, and a one line summary.
+          allowed_tools: "mcp__notion__*,mcp__clickup__*,Read,Write"
+          mcp_config: |
+            {
+              "mcpServers": {
+                "notion": { "type": "http", "url": "https://mcp.notion.com/mcp", "headers": { "Authorization": "Bearer ${{ secrets.NOTION_API_KEY }}" } },
+                "clickup": { "type": "http", "url": "https://mcp.clickup.com/mcp", "headers": { "Authorization": "Bearer ${{ secrets.CLICKUP_API_KEY }}" } }
+              }
+            }
