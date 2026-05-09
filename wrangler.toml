@@ -1,0 +1,7 @@
+name = "claudio-api"
+main = "worker/index.js"
+compatibility_date = "2024-01-01"
+account_id = "72e9b911736e9a97824c9fa6927f3e80"
+
+[vars]
+ALLOWED_ORIGIN = "https://ivicuo.github.io,http://localhost:5173"
