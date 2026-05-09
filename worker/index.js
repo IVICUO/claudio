@@ -143,6 +143,13 @@ function deriveQuarter(isoDate) {
   const q = Math.floor(d.getMonth() / 3) + 1;
   return `${d.getFullYear()} Q${q}`;
 }
+function deriveQuarterDashed(isoDate) {
+  if (!isoDate) return null;
+  const d = new Date(isoDate);
+  if (Number.isNaN(d.getTime())) return null;
+  const q = Math.floor(d.getMonth() / 3) + 1;
+  return `${d.getFullYear()}-Q${q}`;
+}
 
 async function notionFetch(env, path, init = {}) {
   const r = await fetch(`https://api.notion.com/v1${path}`, {
@@ -157,48 +164,99 @@ async function notionFetch(env, path, init = {}) {
   return r;
 }
 
+// IVICUO's internal initiatives database, separate from any client workspace.
+// Hardcoded because the title pattern would not pick it up alongside "WORKSPACE *".
+const INTERNAL_DB_ID = "2b8021fb3bdc807fbd33eb5ba92eb066";
+const INTERNAL_CLIENT_LABEL = "IVICUO Internal";
+
+// Statuses that count as "not active" (hidden by default in the sidebar).
+const INACTIVE_STATUSES = new Set([
+  "Done",
+  "🛑 Blocked OR Paused",
+  "🗑️ Dissmissed OR Postponed",
+]);
+
 async function handleNotionFetchProjects(_request, env, origin) {
   if (!env.NOTION_API_KEY) return err("notion not configured", 503, env, origin);
 
-  const r = await notionFetch(env, "/search", {
+  // 1. Discover all client workspace databases by name pattern.
+  const search = await notionFetch(env, "/search", {
     method: "POST",
     body: JSON.stringify({
-      filter: { property: "object", value: "page" },
+      query: "WORKSPACE",
+      filter: { property: "object", value: "database" },
       page_size: 100,
     }),
   });
-  if (!r.ok) return err(`notion search failed: ${r.status}`, 502, env, origin);
-  const data = await r.json();
+  if (!search.ok) return err(`notion search failed: ${search.status}`, 502, env, origin);
+  const searchData = await search.json();
 
-  const projects = (data.results || [])
-    .map((page) => {
-      const props = page.properties || {};
-      const titleProp = Object.values(props).find((p) => p.type === "title");
-      const name = titleProp?.title?.map((t) => t.plain_text).join("") || "Untitled";
-      const branch = readSelect(props, ["Branch", "branch"]);
-      const status = readSelect(props, ["Status", "status"]);
-      const clickup = readRichText(props, ["ClickUp List", "clickup_list", "ClickUp"]);
-      const client = readSelect(props, ["Client", "client", "Account"])
-        || readRichText(props, ["Client", "client", "Account"]);
-      const quarter = readSelect(props, ["Quarter", "quarter"])
-        || readRichText(props, ["Quarter", "quarter"])
-        || deriveQuarter(readDate(props, ["Start Date", "Start", "Kickoff"]));
-      return {
-        id: page.id,
-        name,
-        notion_page_id: page.id,
-        notion_url: page.url,
-        clickup_list_id: clickup,
-        branch,
-        status,
-        client: client || null,
-        quarter: quarter || null,
-        last_activity: page.last_edited_time,
-      };
-    })
-    .filter((p) => p.status === "Active" || p.name === "IVICUO Internal");
+  const workspaces = (searchData.results || [])
+    .filter((db) => db.object === "database")
+    .map((db) => ({ id: db.id, title: notionDbTitle(db) }))
+    .filter((ws) => /^WORKSPACE\s+/i.test(ws.title))
+    .map((ws) => ({
+      id: ws.id,
+      client: ws.title.replace(/^WORKSPACE\s+/i, "").trim(),
+    }));
+
+  // Always include IVICUO Internal alongside client workspaces.
+  workspaces.push({ id: INTERNAL_DB_ID, client: INTERNAL_CLIENT_LABEL });
+
+  // 2. Query each workspace database in parallel, tag results with client name.
+  const results = await Promise.all(workspaces.map((ws) => queryWorkspace(env, ws)));
+  const projects = results.flat();
 
   return json({ projects }, {}, env, origin);
+}
+
+function notionDbTitle(db) {
+  const title = db.title || db.name;
+  if (Array.isArray(title)) return title.map((t) => t.plain_text || "").join("");
+  return String(title || "");
+}
+
+async function queryWorkspace(env, workspace) {
+  try {
+    const r = await notionFetch(env, `/databases/${workspace.id}/query`, {
+      method: "POST",
+      body: JSON.stringify({ page_size: 100 }),
+    });
+    if (!r.ok) return [];
+    const data = await r.json();
+    return (data.results || []).map((page) => extractProject(page, workspace));
+  } catch {
+    return [];
+  }
+}
+
+function extractProject(page, workspace) {
+  const props = page.properties || {};
+  const titleProp = Object.values(props).find((p) => p.type === "title");
+  const name = titleProp?.title?.map((t) => t.plain_text).join("") || "Untitled";
+  const status = props["Status"]?.status?.name || readSelect(props, ["Status", "status"]) || null;
+  const quarter = props["Quarter"]?.multi_select?.[0]?.name
+    || readSelect(props, ["Quarter", "quarter"])
+    || deriveQuarterDashed(readDate(props, ["Start Date", "Start", "Date"]));
+  const branch = readSelect(props, ["Branch", "branch"]);
+  const priority = readSelect(props, ["Priority", "priority"]);
+  const mainProject = props["Main Project"]?.multi_select?.map((s) => s.name) || [];
+  const isActive = status ? !INACTIVE_STATUSES.has(status) : true;
+  return {
+    id: page.id,
+    name,
+    notion_page_id: page.id,
+    notion_url: page.url,
+    clickup_list_id: null, // Per Roadmap First, ClickUp link is via Main Project tags, not list IDs.
+    main_project: mainProject,
+    client: workspace.client,
+    branch,
+    status,
+    priority,
+    quarter,
+    is_active: isActive,
+    last_activity: page.last_edited_time,
+  };
 }
 
 async function handleNotionFetchContext(request, env, origin) {
