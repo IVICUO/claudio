@@ -1,9 +1,10 @@
 name: clickup-bridge-replies
 
 on:
-  schedule:
-    # Every hour during workday hours, Mon-Fri (07:00 to 19:00 UTC).
-    - cron: "0 7-19 * * 1-5"
+  # PAUSED while config is incomplete. Re-enable by uncommenting the schedule block.
+  # Every hour during workday hours, Mon-Fri (07:00 to 19:00 UTC).
+  # schedule:
+  #   - cron: "0 7-19 * * 1-5"
   workflow_dispatch: {}
 
 permissions:

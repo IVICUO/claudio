@@ -1,9 +1,10 @@
 name: friday-clickup-bridge
 
 on:
-  schedule:
-    # Friday 16:00 CET (15:00 UTC), shortly after the existing friday-sync.
-    - cron: "30 15 * * 5"
+  # PAUSED while config is incomplete. Re-enable by uncommenting the schedule block.
+  # Friday 16:00 CET (15:00 UTC), shortly after the existing friday-sync.
+  # schedule:
+  #   - cron: "30 15 * * 5"
   workflow_dispatch: {}
 
 permissions:

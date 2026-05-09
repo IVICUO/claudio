@@ -1,8 +1,9 @@
 name: monday-digest
 
 on:
-  schedule:
-    - cron: "0 8 * * 1"
+  # PAUSED while config is incomplete. Re-enable by uncommenting the schedule block.
+  # schedule:
+  #   - cron: "0 8 * * 1"
   workflow_dispatch: {}
 
 permissions:

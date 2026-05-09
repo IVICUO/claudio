@@ -1,8 +1,9 @@
 name: daily-insight
 
 on:
-  schedule:
-    - cron: "0 7 * * *"
+  # PAUSED while config is incomplete. Re-enable by uncommenting the schedule block.
+  # schedule:
+  #   - cron: "0 7 * * *"
   workflow_dispatch: {}
 
 permissions:

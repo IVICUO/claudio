@@ -1,8 +1,9 @@
 name: friday-sync
 
 on:
-  schedule:
-    - cron: "0 15 * * 5"
+  # PAUSED while config is incomplete. Re-enable by uncommenting the schedule block.
+  # schedule:
+  #   - cron: "0 15 * * 5"
   workflow_dispatch: {}
 
 permissions:
