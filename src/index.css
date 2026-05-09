@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  background: #21334E;
+  color: #F2F7FD;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Geometric background pattern, used on login screen and empty states. */
+.geometric-bg {
+  background-color: #21334E;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(99, 252, 226, 0.04) 0, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(255, 32, 98, 0.03) 0, transparent 40%);
+  position: relative;
+  overflow: hidden;
+}
+
+.geometric-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(transparent 0, transparent 39px, rgba(242, 247, 253, 0.025) 40px),
+    linear-gradient(90deg, transparent 0, transparent 39px, rgba(242, 247, 253, 0.025) 40px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+
+/* Custom scrollbar, dark theme. */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(99, 252, 226, 0.15); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(99, 252, 226, 0.3); }
+
+/* Markdown rendered messages. */
+.prose-message p { margin: 0.5rem 0; }
+.prose-message p:first-child { margin-top: 0; }
+.prose-message p:last-child { margin-bottom: 0; }
+.prose-message strong { font-weight: 700; color: #63FCE2; }
+.prose-message code {
+  background: rgba(99, 252, 226, 0.08);
+  border: 0.5px solid rgba(99, 252, 226, 0.2);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 0.9em;
+  color: #63FCE2;
+}
+.prose-message pre {
+  background: rgba(0, 0, 0, 0.3);
+  border: 0.5px solid rgba(99, 252, 226, 0.15);
+  padding: 12px;
+  border-radius: 4px;
+  overflow-x: auto;
+  margin: 0.75rem 0;
+}
+.prose-message pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: #F2F7FD;
+}
+.prose-message ul, .prose-message ol { margin: 0.5rem 0 0.5rem 1.25rem; }
+.prose-message li { margin: 0.2rem 0; }
+.prose-message a { color: #63FCE2; text-decoration: underline; text-decoration-color: rgba(99, 252, 226, 0.3); }
